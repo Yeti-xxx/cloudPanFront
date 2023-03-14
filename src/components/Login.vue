@@ -30,7 +30,7 @@
 import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router';
 // 引入api
-import { login } from '../api/login'
+import { login, register } from '../api/login'
 // 引入正则
 import { regUserName, regPassword } from '../utils/regExp'
 // 引入userPinia
@@ -55,21 +55,40 @@ const goto = () => {
             type: 'error',
         })
     }
-    login(loginBody.value).then(res => {
-        if (res.code !== 200) {
-            return ElMessage({
-                message: res.message,
-                type: 'error',
-            })
-        } else {
-            console.log(res);
-            UserPinia.setToken(res.token)
-            return ElMessage({
-                message: res.message,
-                type: 'success',
-            })
-        }
-    })
+    // 走登录通道
+    if (tabActive.value == 1) {
+        login(loginBody.value).then(res => {
+            if (res.code !== 200) {
+                return ElMessage({
+                    message: res.message,
+                    type: 'error',
+                })
+            } else {
+                console.log(res);
+                UserPinia.setToken(res.token)
+                return ElMessage({
+                    message: res.message,
+                    type: 'success',
+                })
+            }
+        })
+    } else {
+        // 走注册通道
+        register(loginBody.value).then(res => {
+            if (res.code !== 200) {
+                return ElMessage({
+                    message: res.message,
+                    type: 'error',
+                })
+            } else {
+                console.log(res);
+                return ElMessage({
+                    message: res.message,
+                    type: 'success',
+                })
+            }
+        })
+    }
 }
 
 
@@ -87,18 +106,19 @@ const goto = () => {
     border-radius: 4%;
     box-shadow: 2px 3px 11px #333333;
     margin: auto;
+    background-color: rgba(255, 255, 255, 0.9);
 
     input {
         background: none;
         outline: none;
         border: none;
-        border-bottom: 1px solid #4768d3;
+        border-bottom: 1px solid #47a0d3;
         font-size: 16px;
         width: 80%;
     }
 
     input:focus {
-        border-bottom: 1px solid #6919c5;
+        border-bottom: 1px solid #4806ff;
     }
 
     .tab {
@@ -128,15 +148,7 @@ const goto = () => {
         justify-content: space-evenly;
         width: 230px;
         height: 240px;
-
-        .userNameBox {
-            // margin-top: 30px;
-        }
-
-        .passWordBox {
-            // margin-top: 40px;
-        }
-
+        
         .userNameBox,
         .passWordBox {
             display: flex;
