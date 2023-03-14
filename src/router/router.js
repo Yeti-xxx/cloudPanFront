@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from '../components/Home.vue'
+// 导入user仓库
+import {useUserPinia} from '../pinia/user'
 const routes = [
     {
         path:'/login',
@@ -8,13 +10,19 @@ const routes = [
     },
     {
         path:'/',
-        name:'Home',
-        component:Home
+        redirect:'/home'
     },
     {
         path:'/home',
         name:'Home',
-        component:Home
+        component:Home,
+        beforeEnter: (to, from, next) => {
+            if (useUserPinia().token) {
+                next()
+            }else{
+                next('/login')
+            }
+        }
     },
 ]
 const router = createRouter({

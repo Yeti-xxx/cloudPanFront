@@ -66,10 +66,11 @@ const goto = () => {
             } else {
                 console.log(res);
                 UserPinia.setToken(res.token)
-                return ElMessage({
+                ElMessage({
                     message: res.message,
                     type: 'success',
                 })
+                return router.push('/home') 
             }
         })
     } else {
@@ -81,7 +82,6 @@ const goto = () => {
                     type: 'error',
                 })
             } else {
-                console.log(res);
                 return ElMessage({
                     message: res.message,
                     type: 'success',
