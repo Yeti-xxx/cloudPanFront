@@ -1,18 +1,19 @@
 <template>
   <div>
-    hi
+    <RouterView></RouterView>
   </div>
 </template>
 
 <script setup>
 import { onBeforeMount } from 'vue';
 import request from './axios/axios'
-onBeforeMount(() => {
-  request({
-    url: '/test/hi',
-    method: 'get'
-  })
-})
+import Home from './components/Home.vue'
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+</style>
