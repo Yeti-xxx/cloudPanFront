@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import {useUserPinia} from '../pinia/user'
 //1. 创建axios对象
 let api_base_url = 'http://127.0.0.1:5007'
 const service = axios.create({
@@ -9,6 +9,9 @@ const service = axios.create({
 
 //2. 请求拦截器
 service.interceptors.request.use(config => {
+    if (useUserPinia().token) {
+        config.headers['Token'] = useUserPinia().token
+    }
     return config;
 }, error => {
     Promise.reject(error);
