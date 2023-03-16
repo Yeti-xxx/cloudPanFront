@@ -26,8 +26,8 @@
           </div>
           <div class="userBox">
             <div class="userName">
-              <el-avatar :src=userInfo.avatar />
-              <span>{{ userInfo.nickname }}</span>
+              <el-avatar :src=userInfo.avatar :fit="fill" />
+              <span style="display: block; margin-left: 10px;">{{ userInfo.nickname }}</span>
             </div>
             <div class="userOption">
               <el-dropdown trigger="click" size="large">
@@ -36,7 +36,7 @@
                 </el-icon>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item>个人中心</el-dropdown-item>
+                    <el-dropdown-item @click="gotoMyCenter">个人中心</el-dropdown-item>
                     <el-dropdown-item @click="loginOut">退出登录</el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
@@ -46,7 +46,7 @@
         </div>
       </div>
       <div class="rightContent">
-
+        <router-view></router-view>
       </div>
     </div>
   </div>
@@ -91,12 +91,17 @@ onBeforeMount(() => {
         type: 'error',
       })
     }
-
     userInfo.value = res.data
-    console.log(userInfo.value);
+    UserPinia.setUserInfo(userInfo.value)
+    
   })
 
 })
+
+// 
+const gotoMyCenter = () => {
+  router.push('/home/myCenter')
+}
 
 </script>
 

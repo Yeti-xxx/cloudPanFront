@@ -10,12 +10,19 @@ const routes = [
     },
     {
         path:'/',
-        redirect:'/home'
+        redirect:'/home',
     },
     {
         path:'/home',
         name:'Home',
         component:Home,
+        children:[
+            {
+                path:'myCenter',
+                name:'myCenter',
+                component:()=>import('../views/MyCenter.vue')
+            }
+        ],
         beforeEnter: (to, from, next) => {
             if (useUserPinia().token) {
                 next()

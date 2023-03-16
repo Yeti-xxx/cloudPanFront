@@ -3,12 +3,17 @@ export const useUserPinia = defineStore({
     id: 'user',
     state: () => {
         return {
-            token: ''
+            token: '',
+            userInfo:{},
         }
     },
     actions: {
         setToken(token) {
             this.token = token
+        },
+        setUserInfo(userInfo){
+            console.log(userInfo);
+            this.userInfo = userInfo
         }
     },
     persist: {
