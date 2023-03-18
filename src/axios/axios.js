@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {useUserPinia} from '../pinia/user'
+import { useUserPinia } from '../pinia/user'
 //1. 创建axios对象
 let api_base_url = 'http://127.0.0.1:5007'
 const service = axios.create({
@@ -12,6 +12,10 @@ service.interceptors.request.use(config => {
     if (useUserPinia().token) {
         config.headers['Token'] = useUserPinia().token
     }
+    // if (config.url.indexOf('/updateAvatar') != -1) {
+    //     config.headers['Content-Type'] = 'multipart/form-data'
+    // }
+    // console.log(config.headers['Content-Type']);
     return config;
 }, error => {
     Promise.reject(error);
