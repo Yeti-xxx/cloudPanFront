@@ -12,10 +12,6 @@ service.interceptors.request.use(config => {
     if (useUserPinia().token) {
         config.headers['Token'] = useUserPinia().token
     }
-    // if (config.url.indexOf('/updateAvatar') != -1) {
-    //     config.headers['Content-Type'] = 'multipart/form-data'
-    // }
-    // console.log(config.headers['Content-Type']);
     return config;
 }, error => {
     Promise.reject(error);

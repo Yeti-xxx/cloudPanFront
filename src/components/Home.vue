@@ -56,7 +56,7 @@
 import login from './login.vue';
 import { useUserPinia } from '../pinia/user';
 import { useRouter } from 'vue-router';
-import { onBeforeMount } from 'vue';
+import { onBeforeMount, watch } from 'vue';
 // 接口
 import { getUserInfo } from '../api/user'
 
@@ -75,8 +75,17 @@ const loginOut = () => {
     type: 'success',
   })
 }
+// 监听头像或资料是否发送改变
+watch(() => UserPinia.isUpdateInfo, (newV, oldV) => {
+  homeGetUserInfo()
+})
 
-onBeforeMount(() => {
+computed(UserPinia.isUpdateInfo, () => {
+  homeGetUserInfo()
+})
+
+function homeGetUserInfo() {
+  console.log('homeGetUserInfo');
   getUserInfo().then(res => {
     if (res.code === 401) {
       ElMessage({
@@ -93,9 +102,11 @@ onBeforeMount(() => {
     }
     userInfo.value = res.data
     UserPinia.setUserInfo(userInfo.value)
-    
   })
+}
 
+onBeforeMount(() => {
+  homeGetUserInfo()
 })
 
 // 

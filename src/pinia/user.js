@@ -4,16 +4,20 @@ export const useUserPinia = defineStore({
     state: () => {
         return {
             token: '',
-            userInfo:{},
+            userInfo: {},
+            isUpdateInfo: false
         }
     },
     actions: {
         setToken(token) {
             this.token = token
         },
-        setUserInfo(userInfo){
+        setUserInfo(userInfo) {
             console.log(userInfo);
             this.userInfo = userInfo
+        },
+        changeIsUpdateInfo(){
+            this.isUpdateInfo = !this.isUpdateInfo
         }
     },
     persist: {

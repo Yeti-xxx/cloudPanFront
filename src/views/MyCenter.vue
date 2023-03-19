@@ -2,7 +2,7 @@
   <div class="container">
     <div class="header">
       <div class="AvatarAndName">
-        <el-avatar class="avatar" @click="selectFlag = true" :src=userInfo.avatar :fit="fill" :size="60" />
+        <el-avatar class="avatar" @click="changeFlagAvatarBox(true)" :src=userInfo.avatar :fit="fill" :size="60" />
         <span style="display: block; margin-left: 10px;color: #ffffff;font-size: 22px;">{{ userInfo.nickname }}</span>
       </div>
     </div>
@@ -10,7 +10,7 @@
       <div class="selectAvatar" v-show="selectFlag">
         <input v-show="false" ref="AvatarInput" type="file" class="getAvatar" accept="image/*" />
         <div class="selectTop">
-          <el-icon class="close" :size="24" @click="selectFlag = false">
+          <el-icon class="close" :size="24" @click="changeFlagAvatarBox(false)">
             <Close />
           </el-icon>
         </div>
@@ -19,18 +19,25 @@
             <div class="selectMy selectBtn" @click="openFiles">
               选择本地图片
             </div>
-            <div class="selectQuick selectBtn">
+            <div class="selectQuick selectBtn" @click="changeFlagQABOX">
               QuicPan提供的头像
             </div>
           </div>
           <div class="preview">
             <!-- <el-avatar ref="previewAvatar" class="avatar" :src="previewUrl" :fit="fill" :size="130" /> -->
-            <img class="previewAvatar" ref="previewAvatar" :src="userInfo.avatar" alt="" />
+            <img class="previewAvatar" ref="previewAvatar" :src="previewAvatarUrl" alt="" />
           </div>
         </div>
         <div class="selectBottom">
           <div :class="['uploadBtn', uploadFlag ? 'canUpload' : 'noUpload']" @click="upload">更新</div>
         </div>
+        <Transition name="QuickPABox">
+          <div class="QuickPanAvatarBox" v-if="flagQABox">
+            <div class="item" v-for="item in QABoxArr" :key="item.avatarId">
+              <el-avatar @click="clickQPAvatar(item)" class="el-avatar" :size="100" :src="item.avatar" />
+            </div>
+          </div>
+        </Transition>
       </div>
     </Transition>
   </div>
@@ -42,13 +49,23 @@ import { onMounted, ref } from 'vue';
 import { useUserPinia } from '../pinia/user';
 import { useRouter } from 'vue-router';
 // 头像上传api
-import { updateAvatar } from '../api/user'
+import { updateAvatar, QPAvatar, useQPAvatar } from '../api/user'
 const userPinia = useUserPinia()
 // 获取缓存的用户数据
 let userInfo = ref({})
 // 开启或隐藏头像选中框
 let selectFlag = ref(false)
 userInfo.value = userPinia.userInfo
+let previewAvatarUrl = ref('')
+previewAvatarUrl.value = userInfo.value.avatar
+const changeFlagAvatarBox = (flag) => {
+  selectFlag.value = flag
+  if (flag) {
+    getQPAvatar()
+  }
+}
+// 头像来源是本地文件还是QA提供
+let localOrQA = ref(true)
 // input
 const AvatarInput = ref(null)
 const previewAvatar = ref(null)
@@ -64,6 +81,7 @@ const openFiles = () => {
       previewAvatar.value.src = reader.result
     })
     uploadFlag.value = true
+    localOrQA.value = true
     // 读取文件数据
     reader.readAsDataURL(file);
   })
@@ -75,22 +93,64 @@ let uploadFlag = ref(false)
 const router = useRouter()
 // 点击上传
 const upload = () => {
-  // 创建一个FormData对象
-  const formData = new FormData();
-  // 将文件添加到FormData对象中
-  formData.append('file', AvatarInput.value.files[0]);
+  if (localOrQA.value) {
+    // 创建一个FormData对象
+    const formData = new FormData();
+    // 将文件添加到FormData对象中
+    formData.append('file', AvatarInput.value.files[0]);
+    updateAvatar(formData).then(res => {
+      if (res.code !== 200) {
+        return ElMessage({
+          message: res.message,
+          type: 'error',
+        })
+      }
+      ElMessage({
+        message: '修改成功',
+        type: 'success',
+      })
+    })
+  } else {
+    useQPAvatar({ avatar: previewAvatarUrl.value }).then(res => {
+      if (res.code !== 200) {
+        return ElMessage({
+          message: res.message,
+          type: 'error',
+        })
+      }
+      ElMessage({
+        message: '修改成功',
+        type: 'success',
+      })
+    })
+  }
+  // 更新头像状态
+  userPinia.changeIsUpdateInfo()
+  router.go(-1)
 
-  updateAvatar(formData).then(res => {
+}
+// 控制QA头像Box显示
+let flagQABox = ref(false)
+// QAbox头像数组
+const QABoxArr = ref([])
+const changeFlagQABOX = () => {
+  flagQABox.value = !flagQABox.value
+}
+const getQPAvatar = () => {
+  QPAvatar().then(res => {
     if (res.code !== 200) {
       return ElMessage({
         message: res.message,
         type: 'error',
       })
     }
-    router.push('/home')
+    QABoxArr.value = res.data
   })
-
-
+}
+const clickQPAvatar = (item) => {
+  previewAvatarUrl.value = item.avatar
+  localOrQA.value = false
+  uploadFlag.value = true
 }
 
 
@@ -198,6 +258,7 @@ const upload = () => {
       width: 160px;
       border-radius: 50%;
 
+
     }
   }
 
@@ -228,6 +289,37 @@ const upload = () => {
       cursor: pointer;
     }
   }
+
+  .QuickPanAvatarBox {
+    display: flex;
+    flex-wrap: wrap;
+    position: absolute;
+    height: 100%;
+    width: 50%;
+    background-color: #fff;
+    bottom: 0;
+    left: 103%;
+    border-radius: 2%;
+    box-shadow: 4px 2px 18px #aaaaaa;
+
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-basis: 50%;
+      box-sizing: border-box;
+      cursor: pointer;
+
+      .el-avatar {
+        border: 2px solid #e5e9ef;
+        transition: box-shadow, .3s;
+
+        &:hover {
+          box-shadow: 2px 4px 5px #aaaaaa;
+        }
+      }
+    }
+  }
 }
 
 .select-enter-active,
@@ -237,6 +329,16 @@ const upload = () => {
 
 .select-enter-from,
 .select-leave-to {
+  opacity: 0;
+}
+
+.QuickPABox-enter-active,
+.QuickPABox-leave-active {
+  transition: opacity 0.6s ease;
+}
+
+.QuickPABox-enter-from,
+.QuickPABox-leave-to {
   opacity: 0;
 }
 </style>

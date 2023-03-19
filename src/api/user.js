@@ -19,3 +19,14 @@ export function updateAvatar(formData) {
 
     )
 }
+
+export function QPAvatar() {
+    return axios({
+        url: '/api/quickPanAvatar',
+        method: 'get'
+    })
+}
+
+export function useQPAvatar(params) {
+    return axios({ url: '/api/SetQuickPanAvatar', method: 'get', params })
+}
