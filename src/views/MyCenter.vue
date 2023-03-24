@@ -68,6 +68,7 @@ const changeFlagAvatarBox = (flag) => {
 let localOrQA = ref(true)
 // input
 const AvatarInput = ref(null)
+console.log(AvatarInput.value);
 const previewAvatar = ref(null)
 // 点击打开文件夹，选择图片
 const openFiles = () => {

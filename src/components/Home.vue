@@ -24,6 +24,12 @@
             </el-icon>
             <p style="font-size: 16px;">传输列表</p>
           </div>
+          <div class="listItem" @click="gotoTest">
+            <el-icon color="#25262b" :size="25">
+              <Odometer />
+            </el-icon>
+            <p style="font-size: 16px;">测试页面</p>
+          </div>
           <div class="userBox">
             <div class="userName">
               <el-avatar :src=userInfo.avatar :fit="fill" />
@@ -114,6 +120,8 @@ const gotoMyCenter = () => {
   router.push('/home/myCenter')
 }
 
+// 前往test页面
+const gotoTest = () => router.push('/home/test')
 </script>
 
 <style lang='less' scoped>

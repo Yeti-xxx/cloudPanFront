@@ -21,6 +21,11 @@ const routes = [
                 path:'myCenter',
                 name:'myCenter',
                 component:()=>import('../views/MyCenter.vue')
+            },
+            {
+                path:'test',
+                name:'test',
+                component:()=>import('../test/test.vue')
             }
         ],
         beforeEnter: (to, from, next) => {

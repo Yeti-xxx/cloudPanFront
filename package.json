@@ -23,6 +23,7 @@
     "postcss-loader": "^7.0.2",
     "postcss-plugin-px2rem": "^0.8.1",
     "postcss-pxtorem": "^6.0.0",
+    "spark-md5": "^3.0.2",
     "unplugin-icons": "^0.15.3",
     "vite-plugin-inspect": "^0.7.16",
     "vue": "^3.2.45",
