@@ -10,7 +10,7 @@
 import { ref } from 'vue';
 import axios from 'axios';
 const testInput = ref(null)
-const UPLOAD_URL = "http://127.0.0.1:5007/test/upload ";
+const UPLOAD_URL = "http://127.0.0.1:5007/api/uploadFiles ";
 
 onMounted(() => {
     testInput.value.addEventListener('change', async () => {
@@ -35,34 +35,55 @@ const abordtoServer = () => {
     }
 }
 
-
+async function initUpload(url, file) {
+    let initFormData = new FormData()
+    let size = parseFloat(file.size / 1024 / 1024).toFixed(2) - 0
+    let type = file.name.split('.')[(file.name.split('.').length - 1)]
+    initFormData.append('type', 'init')
+    initFormData.append('createTime', Date.now())
+    initFormData.append('size', size)
+    initFormData.append('filetype', type)
+    initFormData.append('fileName', file.name)
+    initFormData.append('totalChunk', Math.ceil(file.size / 15 / 1024 / 1024))
+    axios.post(url, initFormData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            'token': JSON.parse(localStorage.getItem('QuickPan_user')).token
+        },
+    })
+}
 
 async function submitUpload(url, file) {
-    const CHUNKSIZE = 15 * 1024 * 1024; // 5M
-    // TOKEN = Date.now();
-    TOKEN = localStorage.getItem('time')
-    console.log(TOKEN);
-    //切割数组
-    const chunkList = sliceFile(file, CHUNKSIZE);
-    //创建formdata 并上传
-    let promiseList = createChunkPromiseList(chunkList, file.name, TOKEN);
-    //并发控制 上传 
-    await createLimitPromise(2, promiseList);
+    // initUpload(url, file)
+
+    // const CHUNKSIZE = 15 * 1024 * 1024; // 5M
+    // // TOKEN = Date.now();
+    // TOKEN = localStorage.getItem('time')
+    // console.log(TOKEN);
+    // //切割数组
+    // const chunkList = sliceFile(file, CHUNKSIZE);
+    // //创建formdata 并上传
+    // let promiseList = createChunkPromiseList(chunkList, file.name, TOKEN, chunkList.length);
+    // //并发控制 上传 
+    // await createLimitPromise(2, promiseList);
+
     // 这里的await保证了分片全部传送出去,然后执行合并分片的请求
     //合并分片
-    // if (sendChunkCount == chunkList.length) {
     let mergeFormData = new FormData();
     mergeFormData.append("type", "merge");
     mergeFormData.append("token", localStorage.getItem('time'));
     // mergeFormData.append("token", TOKEN);
-    mergeFormData.append("chunkCount", chunkList.length);
+    mergeFormData.append("chunkCount", 256);
     mergeFormData.append("fileName", file.name);
-
-    if ((Object.keys((JSON.parse(localStorage.getItem('saveChunkKey'))))).length === 45) {
+    mergeFormData.append("Filetype", file.name.split('.')[file.name.split('.').length - 1])
         //结束后发送合并请
-        const res = await axios.post(url, mergeFormData)
-        console.log(res);
-    }
+    const res = await axios.post(url, mergeFormData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            'token': JSON.parse(localStorage.getItem('QuickPan_user')).token
+        },
+    })
+
 
 
 }
@@ -142,7 +163,7 @@ function setUploadedToStorage(index) {
 }
 //chunkList => formdata list => PromiseList
 //切片数组 封装成 http 请求
-function createChunkPromiseList(chunkList, name, TOKEN) {
+function createChunkPromiseList(chunkList, name, TOKEN, totalLength) {
     return chunkList
         .map((chunk, index) => {
             console.log('index', index, uploadedInfo[index] ? '已上传过' : '未上传');
@@ -153,9 +174,11 @@ function createChunkPromiseList(chunkList, name, TOKEN) {
                 let formdata = new FormData();
                 formdata.append("type", "upload");
                 formdata.append("name", name);
+                formdata.append("Filetype", name.split('.')[name.split('.').length - 1])
                 formdata.append("token", TOKEN);
                 formdata.append("chunk", chunk);
                 formdata.append("index", index);
+                formdata.append('totalLength', totalLength)
                 return formdata;
             }
         })
@@ -181,6 +204,10 @@ const axiosConfig = {
     cancelToken: new CancelToken(function executor(c) {
         cancel.value.push(c);
     }),
+    headers: {
+        'Content-Type': 'multipart/form-data',
+        'token': JSON.parse(localStorage.getItem('QuickPan_user')).token
+    },
 };
 
 

@@ -26,6 +26,21 @@ const routes = [
                 path:'test',
                 name:'test',
                 component:()=>import('../test/test.vue')
+            },
+            {
+                path:'trans',
+                name:'trans',
+                component:()=>import('../views/Trans.vue')
+            },
+            {
+                path:'myFiles',
+                name:'myFiles',
+                component:()=>import('../views/MyFiles.vue')
+            },
+            {
+                path:'myRecycle',
+                name:'myRecycle',
+                component:()=>import('../views/MyRecycle.vue')
             }
         ],
         beforeEnter: (to, from, next) => {

@@ -6,25 +6,25 @@
     <div class="content">
       <div class="leftMenu">
         <div class="list">
-          <div class="listItem">
+          <div :class="['listItem', itemFlag == 0 ? 'activerItem' : '']" @click="gotoMyfiles">
             <el-icon color="#25262b" :size="25">
               <Folder />
             </el-icon>
             <p style="font-size: 16px;">文件</p>
           </div>
-          <div class="listItem">
+          <div :class="['listItem', itemFlag == 1 ? 'activerItem' : '']" @click="gotoRecycle">
             <el-icon color="#25262b" :size="25">
               <Delete />
             </el-icon>
             <p style="font-size: 16px;">回收站</p>
           </div>
-          <div class="listItem">
+          <div :class="['listItem', itemFlag == 2 ? 'activerItem' : '']" @click="gotoTrans">
             <el-icon color="#25262b" :size="25">
               <Sort />
             </el-icon>
             <p style="font-size: 16px;">传输列表</p>
           </div>
-          <div class="listItem" @click="gotoTest">
+          <div :class="['listItem', itemFlag == 3 ? 'activerItem' : '']" @click="gotoTest">
             <el-icon color="#25262b" :size="25">
               <Odometer />
             </el-icon>
@@ -81,6 +81,9 @@ const loginOut = () => {
     type: 'success',
   })
 }
+// itemFlag
+let itemFlag = ref(null)
+
 // 监听头像或资料是否发送改变
 watch(() => UserPinia.isUpdateInfo, (newV, oldV) => {
   homeGetUserInfo()
@@ -121,7 +124,25 @@ const gotoMyCenter = () => {
 }
 
 // 前往test页面
-const gotoTest = () => router.push('/home/test')
+const gotoTest = () => {
+  itemFlag.value = 3
+  router.push('/home/test')
+}
+// 前往传输页面
+const gotoTrans = () => {
+  itemFlag.value = 2
+  router.push('/home/trans')
+}
+// 前往文件页面
+const gotoMyfiles = () => {
+  itemFlag.value = 0
+  router.push('/home/myFiles')
+}
+// 前往回收站页面
+const gotoRecycle = () => {
+  itemFlag.value = 1
+  router.push('/home/MyRecycle')
+}
 </script>
 
 <style lang='less' scoped>
@@ -173,10 +194,15 @@ const gotoTest = () => router.push('/home/test')
         padding-left: 20px;
         border-radius: 11%;
         margin-top: 5px;
+        user-select:none;
 
         p {
           margin-left: 10px;
         }
+      }
+
+      .activerItem {
+        background-color: #e3e3e5;
       }
 
       .listItem:hover {
@@ -210,7 +236,7 @@ const gotoTest = () => router.push('/home/test')
           border-radius: 50%;
 
           &:hover {
-            background-color: #e3e3e6;
+            background-color: #ececee;
           }
 
         }
