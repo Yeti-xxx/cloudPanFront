@@ -10,25 +10,25 @@
             <el-icon color="#25262b" :size="25">
               <Folder />
             </el-icon>
-            <p style="font-size: 16px;">文件</p>
+            <p style="font-size: 15px;">文件</p>
           </div>
           <div :class="['listItem', itemFlag == 1 ? 'activerItem' : '']" @click="gotoRecycle">
             <el-icon color="#25262b" :size="25">
               <Delete />
             </el-icon>
-            <p style="font-size: 16px;">回收站</p>
+            <p style="font-size: 15px;">回收站</p>
           </div>
           <div :class="['listItem', itemFlag == 2 ? 'activerItem' : '']" @click="gotoTrans">
             <el-icon color="#25262b" :size="25">
               <Sort />
             </el-icon>
-            <p style="font-size: 16px;">传输列表</p>
+            <p style="font-size: 15px;">传输列表</p>
           </div>
           <div :class="['listItem', itemFlag == 3 ? 'activerItem' : '']" @click="gotoTest">
             <el-icon color="#25262b" :size="25">
               <Odometer />
             </el-icon>
-            <p style="font-size: 16px;">测试页面</p>
+            <p style="font-size: 15px;">测试页面</p>
           </div>
           <div class="userBox">
             <div class="userName">
@@ -249,7 +249,8 @@ const gotoRecycle = () => {
   }
 
   .rightContent {
-    flex-grow: 1;
+    // flex-grow: 1;
+    width: 1680px;
   }
 }
 </style>
