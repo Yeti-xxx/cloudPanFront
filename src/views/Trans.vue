@@ -1,32 +1,72 @@
 <template>
   <div class="container">
-    <div class="top">
+    <input ref="getFile" type="file">
+    <div class="top" style="position: relative;">
       <div class="topItem title">传输列表</div>
-      <div class="transIcon topItem">
+      <div :class="['transIcon', 'topItem', transType === 0 ? 'itemActive' : '']" @click="ChangeType(0)">
         <span>上传</span>
         <div class="number">0</div>
       </div>
-      <div class="transIcon topItem">
+      <div :class="['transIcon', 'topItem', transType === 1 ? 'itemActive' : '']" @click="ChangeType(1)">
         <span>下载</span>
         <div class="number ">0</div>
       </div>
-      <div class="over topItem">
+      <div :class="['over', 'topItem', transType === 2 ? 'itemActive' : '']" @click="ChangeType(2)">
         已完成
+      </div>
+      <div class="addBtn" style="position: absolute; right: 30px; top: 10px;cursor: pointer;">
+        <!-- <img src="../assets/add.png" alt="" > -->
       </div>
     </div>
     <div class="transBody">
-      <div class="hasFiles">
-        <transFile></transFile>
+      <!-- v-if="filePinia.AllFile.length!==0" -->
+      <div class="hasFiles" v-if="propsFileArray.length !== 0">
+        <div class="top">
+          <div class="topName">名称</div>
+          <div class="topPer">状态</div>
+        </div>
+        <div class="transFileContainer">
+          <div v-for="(item, index) in propsFileArray" :key="index" style="width: 100%; height: 50px;">
+            <transFile :typeNum="transType" :fileInfo="item">{{ index }}</transFile>
+          </div>
+        </div>
       </div>
-      <div class="noFiles">
-
+      <div class="noFiles" v-else>
+        <div class="noImg">
+          <img src="../assets/noTrans.png" alt="">
+          <span style="margin-top: 8px;">暂无任务</span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { onBeforeMount, ref } from 'vue';
 import transFile from '../../src/components/transFile.vue'
+import { useFilePinia } from '../pinia/file';
+// 获取所有文件信息接口
+import { getFilesInfo } from '../api/files'
+
+const filePinia = useFilePinia()
+const transType = ref(0)
+// 根据num值进进行切换
+const ChangeType = (typeNum) => {
+  transType.value = typeNum
+  if (typeNum === 0) {
+    propsFileArray.value = filePinia.noOverFileArray
+  } else if (typeNum === 1) {
+    propsFileArray.value = []
+  } else {
+    propsFileArray.value = filePinia.OverFileArray
+  }
+}
+
+const propsFileArray = ref([])
+// 默认传入未上传完成的文件数组
+propsFileArray.value = filePinia.noOverFileArray
+
+
 </script>
 
 <style lang='less' scoped>
@@ -48,7 +88,7 @@ import transFile from '../../src/components/transFile.vue'
     margin-left: 40px;
     cursor: pointer;
     color: #b0b1b3;
-    transition: all .6s;
+    transition: all .4s;
     border-radius: 12%;
 
     &:hover {
@@ -56,6 +96,11 @@ import transFile from '../../src/components/transFile.vue'
     }
 
     padding: 5px;
+  }
+
+  .itemActive {
+    color: #5f5f63;
+    background-color: #f5f5f6;
   }
 
   .title {
@@ -87,13 +132,67 @@ import transFile from '../../src/components/transFile.vue'
 
 }
 
+.hasFiles {
+  .top {
+    width: 1680px;
+    height: 30px;
+    display: flex;
+    // padding-left: 20px;
+    font-size: 14px;
+    color: #b0b1b3;
+    border-top: 1px solid #f5f5f6;
+    border-bottom: 1px solid #f5f5f6;
+
+    .topName {
+      margin-left: 20px;
+    }
+
+    .topPer {
+      margin-left: 1400px;
+    }
+  }
+}
+
 .transBody {
-  background-color: #b0b1b3;
+  // background-color: #b0b1b3;
   height: 100%;
   width: 100%;
   margin-left: 50px;
 
+  .hasFiles {
+    height: 100%;
+    width: 100%;
+
+    .transFileContainer {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+
+    }
+  }
 }
 
+.noImg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-70%, -70%);
+}
 
+.addBtn {
+  cursor: pointer;
+  height: 45px;
+  width: 45px;
+  background-image: url(../assets/add.png);
+}
+
+.addBtn:hover {
+  background-image: url(../assets/add2.png);
+}
 </style>

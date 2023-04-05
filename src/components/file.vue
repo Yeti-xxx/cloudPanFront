@@ -10,12 +10,12 @@
                 </el-icon>
             </div>
             <Transition name="moreShow">
-            <div class="moreBox" v-show="showMore" ref="moreBoxs" data-more="1">
-                <div class="item" data-more="1">下载</div>
-                <div class="item" data-more="1">分享</div>
-                <div class="item recycle" data-more="1">移入回收站</div>
-            </div>
-        </Transition>
+                <div class="moreBox" v-show="showMore" ref="moreBoxs" data-more="1">
+                    <div class="item" data-more="1">下载</div>
+                    <div class="item" data-more="1">分享</div>
+                    <div class="item recycle" data-more="1">移入回收站</div>
+                </div>
+            </Transition>
         </div>
     </div>
 </template>
@@ -23,7 +23,7 @@
 <script setup>
 import { timer } from '../utils/timeStr'
 import { toRefs, ref, onMounted } from 'vue';
-
+import { fileLogo } from '../utils/regExp'
 const props = defineProps({
     fileInfo: {
         type: Object,
@@ -32,15 +32,7 @@ const props = defineProps({
 
 const { fileInfo } = toRefs(props)
 
-// 获取文件类型 展示对应图标
-const fileLogo = (type) => {
-    const imageRegex = /^(jpg|jpeg|png|gif|bmp)$/
-    const mp4Regex = /^mp4$/
-    const textRegex = /^(doc|docx|pdf|ppt|pptx|txt)$/
-    const zipRegex = /^(zip|rar|tar|gz|7z)$/
 
-    return imageRegex.test(type) ? 'img.png' : mp4Regex.test(type) ? 'mp4.png' : textRegex.test(type) ? 'text.png' : zipRegex.test(type) ? 'zip.png' : 'no'
-}
 
 const moreIcon = ref(null)
 const moreBoxs = ref(null)

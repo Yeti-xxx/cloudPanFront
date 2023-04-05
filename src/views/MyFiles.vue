@@ -13,31 +13,46 @@
 import { onBeforeMount, ref, onMounted } from 'vue';
 import { getFilesInfo } from '../api/files'
 import FileComponent from '../components/file.vue'
-// 文件数组
+import { useFilePinia } from '../pinia/file';
+// 上传完成文件数组
 let myFileArray = ref([])
+// 未上传完成文件数组
+let noOverArray = ref([])
 const getFiles = async () => {
     const res = await getFilesInfo()
-    console.log(res);
+
+    return res.data.FilesInfo
+}
+// 获取container DOM
+const container = ref(null)
+
+// 获取file仓库
+const filePinia = useFilePinia()
+
+onBeforeMount(async () => {
+    const temp = await getFiles()
+    myFileArray.value = filterFiles(temp, 0)
+    noOverArray.value = filterFiles(temp, 1)
+    filePinia.addOverFileArray(myFileArray.value)
+    filePinia.addnoOverFileArray(noOverArray.value)
+
+})
+
+
+// 传入不同的type值筛选出不同文件 0 表示已完成 1表示未完成
+const filterFiles = (arr, type) => {
     // 筛选出已经上传完成的文件
-    const arr = res.data.FilesInfo.reduce(function (pre, curr, array) {
-        if (curr.isUploadOver !== 0) {
-            return
+    const resArr = arr.reduce(function (pre, curr, array) {
+        if (curr.isUploadOver !== type) {
+            return pre
         }
         pre.push(curr)
         return pre
     }, [])
-    return arr
-
+    return resArr
 }
 
-onBeforeMount(async () => {
-    myFileArray.value = await getFiles()
 
-})
-const container = ref(null)
-onMounted(() => {
-    // container.value
-})
 
 
 </script>
