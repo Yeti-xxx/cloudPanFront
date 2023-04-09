@@ -47,7 +47,6 @@ const showMoreBoxs = (e) => {
 }
 
 document.addEventListener('click', (e) => {
-    console.log(e.target);
     if (e.target.hasAttribute("data-more") || e.target.hasAttribute("xmlns")) {
 
     } else {

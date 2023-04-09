@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <input ref="getFile" type="file">
     <div class="top" style="position: relative;">
       <div class="topItem title">传输列表</div>
       <div :class="['transIcon', 'topItem', transType === 0 ? 'itemActive' : '']" @click="ChangeType(0)">
@@ -14,7 +13,7 @@
       <div :class="['over', 'topItem', transType === 2 ? 'itemActive' : '']" @click="ChangeType(2)">
         已完成
       </div>
-      <div class="addBtn" style="position: absolute; right: 30px; top: 10px;cursor: pointer;">
+      <div class="addBtn" style="position: absolute; right: 30px; top: 10px;cursor: pointer;" @click="addUploadFile">
         <!-- <img src="../assets/add.png" alt="" > -->
       </div>
     </div>
@@ -27,7 +26,7 @@
         </div>
         <div class="transFileContainer">
           <div v-for="(item, index) in propsFileArray" :key="index" style="width: 100%; height: 50px;">
-            <transFile :typeNum="transType" :fileInfo="item">{{ index }}</transFile>
+            <transFile :typeNum="transType" :fileInfo="item" :transType="transType">{{ index }}</transFile>
           </div>
         </div>
       </div>
@@ -45,9 +44,15 @@
 import { onBeforeMount, ref } from 'vue';
 import transFile from '../../src/components/transFile.vue'
 import { useFilePinia } from '../pinia/file';
+import { useUserPinia } from '../pinia/user'
 // 获取所有文件信息接口
 import { getFilesInfo } from '../api/files'
+// 导入uploadFile内的函数
+import { initUpload } from '../utils/uploadFile'
+// 消息通知组件
+import { ElNotification } from 'element-plus'
 
+const userPinia = useUserPinia()
 const filePinia = useFilePinia()
 const transType = ref(0)
 // 根据num值进进行切换
@@ -66,6 +71,55 @@ const propsFileArray = ref([])
 // 默认传入未上传完成的文件数组
 propsFileArray.value = filePinia.noOverFileArray
 
+// 添加上传文件
+const addUploadFile = async () => {
+  // 创建一个input元素
+  const inputNode = document.createElement("input");
+  inputNode.id = "fileName";
+  inputNode.type = "file";
+  // 触发click事件
+  inputNode.click()
+  // 监听change事件
+  await inputNode.addEventListener('change', async (e) => {
+    const file = inputNode.files[0]
+    const timer = Date.now()
+    const res = await initUpload(file, timer)
+    saveFileInfo(file, timer)
+    filePinia.setUploadFile(file.name + file.name.split('.')[(file.name.split('.').length - 1)])
+    if (res.code !== 200) {
+      return ElMessage({
+        message: res.message,
+        type: 'error',
+      })
+    }
+
+    return ElMessage({
+      message: res.message,
+      type: 'success',
+    })
+  })
+  try {
+    // 移除该input
+    document.removeChild(inputNode)
+  } catch (error) {
+
+  }
+}
+
+
+// 保存上传的文件信息
+const saveFileInfo = (file, timer) => {
+  const temp = {}
+  temp.userId = userPinia.userInfo.userId
+  temp.filename = file.name
+  temp.size = parseFloat(file.size / 1024 / 1024).toFixed(2) - 0
+  temp.type = file.name.split('.')[(file.name.split('.').length - 1)]
+  temp.createTime = timer
+  temp.file = file
+  const arr = filePinia.noOverFileArray
+  arr.push(temp)
+  filePinia.addnoOverFileArray(arr)
+}
 
 </script>
 

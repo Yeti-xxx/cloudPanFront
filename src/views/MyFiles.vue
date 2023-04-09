@@ -34,7 +34,7 @@ onBeforeMount(async () => {
     myFileArray.value = filterFiles(temp, 0)
     noOverArray.value = filterFiles(temp, 1)
     filePinia.addOverFileArray(myFileArray.value)
-    filePinia.addnoOverFileArray(noOverArray.value)
+    // filePinia.addnoOverFileArray(noOverArray.value)
 
 })
 

@@ -4,19 +4,21 @@ export const useFilePinia = defineStore({
     state: () => {
         return {
             OverFileArray: [],
-            noOverFileArray: []
+            noOverFileArray: [],
+            needUploadFile: ''
         }
     },
     actions: {
         addOverFileArray(arr) {
-            console.log(arr);
             this.OverFileArray = []
             this.OverFileArray = arr
         },
         addnoOverFileArray(arr) {
-            console.log(arr);
             this.noOverFileArray = []
             this.noOverFileArray = arr
+        },
+        setUploadFile(fileNameType) {
+            this.needUploadFile = fileNameType
         }
     },
     persist: {

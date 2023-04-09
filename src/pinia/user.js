@@ -13,7 +13,6 @@ export const useUserPinia = defineStore({
             this.token = token
         },
         setUserInfo(userInfo) {
-            console.log(userInfo);
             this.userInfo = userInfo
         },
         changeIsUpdateInfo(){

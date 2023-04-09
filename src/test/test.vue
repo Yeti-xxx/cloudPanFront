@@ -56,33 +56,34 @@ async function initUpload(url, file) {
 async function submitUpload(url, file) {
     // initUpload(url, file)
 
-    // const CHUNKSIZE = 15 * 1024 * 1024; // 5M
-    // // TOKEN = Date.now();
-    // TOKEN = localStorage.getItem('time')
-    // console.log(TOKEN);
-    // //切割数组
-    // const chunkList = sliceFile(file, CHUNKSIZE);
-    // //创建formdata 并上传
-    // let promiseList = createChunkPromiseList(chunkList, file.name, TOKEN, chunkList.length);
-    // //并发控制 上传 
-    // await createLimitPromise(2, promiseList);
+    const CHUNKSIZE = 15 * 1024 * 1024; // 15M
+    // TOKEN = Date.now();
+    TOKEN = localStorage.getItem('time')
+    console.log(TOKEN);
+    //切割数组
+    const chunkList = sliceFile(file, CHUNKSIZE);
+    //创建formdata 并上传
+    let promiseList = createChunkPromiseList(chunkList, file.name, TOKEN, chunkList.length);
+    //并发控制 上传 
+    await createLimitPromise(2, promiseList);
+    console.log(cancel.value);
 
     // 这里的await保证了分片全部传送出去,然后执行合并分片的请求
     //合并分片
-    let mergeFormData = new FormData();
-    mergeFormData.append("type", "merge");
-    mergeFormData.append("token", localStorage.getItem('time'));
-    // mergeFormData.append("token", TOKEN);
-    mergeFormData.append("chunkCount", 256);
-    mergeFormData.append("fileName", file.name);
-    mergeFormData.append("Filetype", file.name.split('.')[file.name.split('.').length - 1])
-        //结束后发送合并请
-    const res = await axios.post(url, mergeFormData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-            'token': JSON.parse(localStorage.getItem('QuickPan_user')).token
-        },
-    })
+    // let mergeFormData = new FormData();
+    // mergeFormData.append("type", "merge");
+    // mergeFormData.append("token", localStorage.getItem('time'));
+    // // mergeFormData.append("token", TOKEN);
+    // mergeFormData.append("chunkCount", 256);
+    // mergeFormData.append("fileName", file.name);
+    // mergeFormData.append("Filetype", file.name.split('.')[file.name.split('.').length - 1])
+    //     //结束后发送合并请
+    // const res = await axios.post(url, mergeFormData, {
+    //     headers: {
+    //         'Content-Type': 'multipart/form-data',
+    //         'token': JSON.parse(localStorage.getItem('QuickPan_user')).token
+    //     },
+    // })
 
 
 
@@ -203,6 +204,7 @@ const axiosConfig = {
     },
     cancelToken: new CancelToken(function executor(c) {
         cancel.value.push(c);
+        console.log(cancel.value);
     }),
     headers: {
         'Content-Type': 'multipart/form-data',
