@@ -23,3 +23,11 @@ export function initFilesAxios(size, type, fileName, fileSize, url,timer) {
         },
     })
 }
+
+export function verifyFile(data){
+    return axios({
+        url:'/api/verifyFile',
+        method:'post',
+        data:data
+    })
+}
