@@ -30,6 +30,8 @@ import { useFilePinia } from '../pinia/file';
 import axios from 'axios'
 import { verifyFile } from '../api/files'
 import { forEach } from 'lodash';
+import { getFilesInfo } from '../api/files'
+
 const props = defineProps({
   fileInfo: {
     type: Object,
@@ -58,27 +60,10 @@ const formats = () => {
   return '已暂停'
 }
 const filePinia = useFilePinia()
+// 已完成的文件数组
+const myFileArray = ref([])
 
 onMounted(async () => {
-  // 验证并重新上传操作
-  const VerifyAndUpload = async () => {
-    // 发送验证文件
-    const resVerify = await verifyFile({ FileType: fileType, FileName: fileName })
-    lostArray.value = resVerify.data.resArray
-    // 如果lostArray长度大于0则重新发送一次
-    if (lostArray.value.length > 0) {
-      let lostList = lostChunkUpload(file, lostArray.value)
-      console.log(lostList);
-      let promiseList = createLostChunkPromiseList(lostList, file.name, createTime, chunkList.length, lostArray.value);
-      const resPromise = await createLimitPromise(2, promiseList)
-    }
-  }
-
-  // 根据lostArray重新上传丢失的切片
-  const lostChunkUpload = (file, lostArray) => {
-    const chunkList = sliceFile(file)
-    return chunkList
-  }
   const fileType = fileInfo.value.filename.split('.')[(fileInfo.value.filename.split('.').length - 1)]
   const fileName = fileInfo.value.filename
   // 如果当前需要上传的是本文件
@@ -99,6 +84,12 @@ onMounted(async () => {
         type: 'error',
       })
     }
+    // 将仓库中的该条文件上传记录删除
+    filePinia.popUploadFile(fileName + fileType)
+    // 更新文件信息
+    const temp = await getFiles()
+    myFileArray.value = filterFiles(temp, 0)
+    filePinia.addOverFileArray(myFileArray.value)
     return ElMessage({
       message: '上传完成',
       type: 'success',
@@ -106,6 +97,47 @@ onMounted(async () => {
   }
 
 })
+
+// 获取文件基本信息
+const getFiles = async () => {
+  const res = await getFilesInfo()
+
+  return res.data.FilesInfo
+}
+
+// 传入不同的type值筛选出不同文件 0 表示已完成 1表示未完成
+const filterFiles = (arr, type) => {
+  // 筛选出已经上传完成的文件
+  const resArr = arr.reduce(function (pre, curr, array) {
+    if (curr.isUploadOver !== type) {
+      return pre
+    }
+    pre.push(curr)
+    return pre
+  }, [])
+  return resArr
+}
+
+
+// 验证并重新上传操作
+const VerifyAndUpload = async () => {
+  // 发送验证文件
+  const resVerify = await verifyFile({ FileType: fileType, FileName: fileName })
+  lostArray.value = resVerify.data.resArray
+  // 如果lostArray长度大于0则重新发送一次
+  if (lostArray.value.length > 0) {
+    let lostList = lostChunkUpload(file, lostArray.value)
+    console.log(lostList);
+    let promiseList = createLostChunkPromiseList(lostList, file.name, createTime, chunkList.length, lostArray.value);
+    const resPromise = await createLimitPromise(2, promiseList)
+  }
+}
+
+// 根据lostArray重新上传丢失的切片
+const lostChunkUpload = (file, lostArray) => {
+  const chunkList = sliceFile(file)
+  return chunkList
+}
 
 // 文件合并操作
 const mergeFiles = (createTime, totalChunk, filename, fileType) => {

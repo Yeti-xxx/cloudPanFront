@@ -4,7 +4,7 @@
       <div class="topItem title">传输列表</div>
       <div :class="['transIcon', 'topItem', transType === 0 ? 'itemActive' : '']" @click="ChangeType(0)">
         <span>上传</span>
-        <div class="number">0</div>
+        <div class="number">{{ filePinia.noOverFileArray.length }}</div>
       </div>
       <div :class="['transIcon', 'topItem', transType === 1 ? 'itemActive' : '']" @click="ChangeType(1)">
         <span>下载</span>

@@ -19,6 +19,14 @@ export const useFilePinia = defineStore({
         },
         setUploadFile(fileNameType) {
             this.needUploadFile = fileNameType
+        },
+        popUploadFile(fileNameType) {
+            this.noOverFileArray.map((el, index) => {
+                if ((el.filename + el.type) === fileNameType) {
+                    this.noOverFileArray.splice(index, 1)
+                }
+            })
+            this.addnoOverFileArray(this.noOverFileArray)
         }
     },
     persist: {
